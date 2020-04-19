@@ -1,6 +1,9 @@
 import {MONTH_NAMES} from "../consts";
 import {EMOJI_LIST} from "../consts";
 
+const MAX_DESCRIPTION_LENGTH = 140;
+
+
 const posters = [
   `made-for-each-other.png`,
   `popeye-meets-sinbad.png`,
@@ -145,6 +148,7 @@ export const createFilmMock = () => {
     country: countryList[createRandomDigit(4)],
     genres: genreList,
     description: descriptionList.slice(0, createRandomDigit(descriptionList.length)).join(` `),
+    maxDescriptionLength: MAX_DESCRIPTION_LENGTH, // подумал, что тут самое оптимальное место для обозначения максимального описания
     ratingSystem: ratingSystem[createRandomDigit(5)],
     comments: generateComments()
   };

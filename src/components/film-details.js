@@ -1,8 +1,7 @@
 import {EMOJI_LIST} from "../consts";
 
-export const createFilmDetails = (film) => {
-  const {title, originalTitle, poster, actors, director, writers, releaseDate,
-    country, rate, time, genres, description, ratingSystem, comments} = film;
+export const createFilmDetails = ({title, originalTitle, poster, actors, director,
+  writers, releaseDate, country, rate, time, genres, description, ratingSystem, comments}) => {
 
   return (`
   <section class="film-details">
@@ -84,7 +83,7 @@ export const createFilmDetails = (film) => {
 
     <div class="form-details__bottom-container">
       <section class="film-details__comments-wrap">
-        <h3 class="film-details__comments-title">${comments.length === 0 || comments.length > 1 ? `Comments` : `Comment`} <span class="film-details__comments-count">${comments.length}</span></h3>
+        <h3 class="film-details__comments-title">${comments.length !== 1 ? `Comments` : `Comment`} <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
           ${comments.map((comment) => {

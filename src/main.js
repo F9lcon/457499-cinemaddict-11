@@ -11,6 +11,7 @@ const SHOWING_FILMS_COUNT_ON_START = 5;
 const SHOWING_FILMS_COUNT_BY_BUTTON = 5;
 const mainElement = document.querySelector(`main`);
 
+
 const renderComponent = (container, template) => {
   container.insertAdjacentHTML(`beforeend`, template);
 };
