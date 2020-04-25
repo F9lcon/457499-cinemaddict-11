@@ -1,44 +1,81 @@
-import {createProfile} from "./components/profile";
-import {createNavigator} from "./components/navigator";
-import {createFilmsContainer} from "./components/films-container";
-import {createCardFilm} from "./components/card-film";
-import {createBtnShowMore} from "./components/btn-show-more";
-import {createFilmDetails} from "./components/film-details";
+import Profile from "./components/profile";
+import Navigator from "./components/navigator";
+import FilmsContainer from "./components/films-container";
+import Film from "./components/card-film";
+import ButtonShowMore from "./components/btn-show-more";
+import FilmDetails from "./components/film-details";
 import {generateMock} from "./mock/film";
+import {RenderPosition, ELEMENTS_TO_LISTEN} from "./consts";
+import {render} from "./utils";
+
 
 const FILM_COUNT = 22;
 const SHOWING_FILMS_COUNT_ON_START = 5;
 const SHOWING_FILMS_COUNT_BY_BUTTON = 5;
 const mainElement = document.querySelector(`main`);
-
-
-const renderComponent = (container, template) => {
-  container.insertAdjacentHTML(`beforeend`, template);
-};
-
-renderComponent(document.querySelector(`.header`), createProfile());
-renderComponent(mainElement, createNavigator());
-renderComponent(mainElement, createFilmsContainer());
-
-const listContainer = mainElement.querySelector(`.films-list__container`);
-
 const films = generateMock(FILM_COUNT);
 
 let showingFilmsCounter = SHOWING_FILMS_COUNT_ON_START;
-films.slice(0, showingFilmsCounter).forEach((film) => renderComponent(listContainer, createCardFilm(film)));
 
-renderComponent(mainElement.querySelector(`.films-list`), createBtnShowMore());
-renderComponent(document.querySelector(`body`), createFilmDetails(films[0]));
+render(document.querySelector(`.header`), new Profile().getElement(),
+    RenderPosition.BEFOREEND);
+render(mainElement, new Navigator().getElement(), RenderPosition.BEFOREEND);
+render(mainElement, new FilmsContainer().getElement(), RenderPosition.BEFOREEND);
 
+const listContainer = mainElement.querySelector(`.films-list__container`);
 
-const showMoreBtn = document.querySelector(`.films-list__show-more`);
-showMoreBtn.addEventListener(`click`, () => {
-  const prevFilmCount = showingFilmsCounter;
-  showingFilmsCounter += SHOWING_FILMS_COUNT_BY_BUTTON;
-  films.slice(prevFilmCount, showingFilmsCounter).forEach((film) =>
-    renderComponent(listContainer, createCardFilm(film)));
-  if (showingFilmsCounter >= films.length) {
-    showMoreBtn.remove();
-  }
+const renderPopup = (element) => {
+  const closePopup = () => {
+    document.querySelector(`body`).removeChild(element);
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  };
+
+  const onEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      closePopup(element);
+    }
+  };
+
+  document.querySelector(`body`).appendChild(element);
+
+  element.querySelector(`.film-details__close-btn`)
+    .addEventListener(`click`, function () {
+      closePopup();
+    });
+  document.addEventListener(`keydown`, onEscKeyDown);
+};
+
+const renderCards = (filmData) => {
+  const film = new Film(filmData);
+  const filmPopup = new FilmDetails(filmData);
+  render(listContainer, film.getElement(), RenderPosition.BEFOREEND);
+
+  ELEMENTS_TO_LISTEN.forEach((element) => {
+    film.getElement().querySelector(element).addEventListener(`click`, function () {
+      renderPopup(filmPopup.getElement());
+    });
+  });
+};
+
+films.slice(0, showingFilmsCounter).forEach((el) => {
+  renderCards(el);
 });
 
+render(mainElement.querySelector(`.films-list`),
+    new ButtonShowMore().getElement(),
+    RenderPosition.BEFOREEND);
+
+const showMoreBtnElement = document.querySelector(`.films-list__show-more`);
+
+showMoreBtnElement.addEventListener(`click`, () => {
+  const prevFilmCount = showingFilmsCounter;
+  showingFilmsCounter += SHOWING_FILMS_COUNT_BY_BUTTON;
+
+  films.slice(prevFilmCount, showingFilmsCounter).forEach((el) => {
+    renderCards(el);
+  });
+
+  if (showingFilmsCounter >= films.length) {
+    showMoreBtnElement.remove();
+  }
+});

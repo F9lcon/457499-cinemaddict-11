@@ -1,10 +1,10 @@
 import {EMOJI_LIST} from "../consts";
+import {createElement} from "../utils";
 
-export const createFilmDetails = ({title, originalTitle, poster, actors, director,
+const createFilmDetails = ({title, originalTitle, poster, actors, director,
   writers, releaseDate, country, rate, time, genres, description, ratingSystem, comments}) => {
 
-  return (`
-  <section class="film-details">
+  return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
     <div class="form-details__top-container">
       <div class="film-details__close">
@@ -87,8 +87,8 @@ export const createFilmDetails = ({title, originalTitle, poster, actors, directo
 
         <ul class="film-details__comments-list">
           ${comments.map((comment) => {
-      const {text, emoji, author, data} = comment;
-      return (`<li class="film-details__comment">
+    const {text, emoji, author, data} = comment;
+    return (`<li class="film-details__comment">
                 <span class="film-details__comment-emoji">
                 <img src="${emoji}" width="55" height="55" alt="emoji-${emoji.slice(15, -4)}">
                 </span>
@@ -102,8 +102,8 @@ export const createFilmDetails = ({title, originalTitle, poster, actors, directo
                 </p>
                 </div>
                 </li>`);
-    }).join(``)
-    }
+  }).join(``)
+}
         </ul>
 
         <div class="film-details__new-comment">
@@ -115,19 +115,40 @@ export const createFilmDetails = ({title, originalTitle, poster, actors, directo
 
           <div class="film-details__emoji-list">
             ${EMOJI_LIST.map((emoji) => {
-      return (`
+    return (`
                 <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji.slice(15, -4)}" value="${emoji.slice(15, -4)}">
                 <label class="film-details__emoji-label" for="emoji-${emoji.slice(15, -4)}">
                   <img src="${emoji}" width="30" height="30" alt="emoji-${emoji.slice(15, -4)}">
                 </label>
               `);
-    }).join(``)
-    }
+  }).join(``)
+}
           </div>
         </div>
       </section>
     </div>
   </form>
-</section>
-  `);
+</section>`;
 };
+
+export default class FilmDetails {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmDetails(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

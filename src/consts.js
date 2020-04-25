@@ -19,3 +19,15 @@ export const EMOJI_LIST = [
   `sleeping`,
   `smile`
 ].map((emoji) => `./images/emoji/${emoji}.png`);
+
+export const RenderPosition = {
+  AFTERBEGIN: `afterbegin`,
+  BEFOREEND: `beforeend`
+};
+
+
+export const ELEMENTS_TO_LISTEN = [
+  `.film-card__poster`,
+  `.film-card__comments`,
+  `.film-card__title`
+];
