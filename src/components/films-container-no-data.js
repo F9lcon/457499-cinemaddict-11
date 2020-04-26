@@ -1,21 +1,20 @@
 import {createElement} from "../utils";
 
-const createFilmsContainer = () => {
+const createFilmsContainerNoData = () => {
   return `<section class="films">
     <section class="films-list">
-      <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
-      <div class="films-list__container"> </div>
+      <h2 class="films-list__title">There are no movies in our database</h2>
     </section>
   </section>`;
 };
 
-export default class FilmsContainer {
+export default class FilmsContainerNoData {
   constructor() {
     this._element = null;
   }
 
   getTemplate() {
-    return createFilmsContainer();
+    return createFilmsContainerNoData();
   }
 
   getElement() {
@@ -29,4 +28,3 @@ export default class FilmsContainer {
     this._element = null;
   }
 }
-
