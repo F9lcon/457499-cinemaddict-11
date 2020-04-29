@@ -1,5 +1,5 @@
 import {EMOJI_LIST} from "../consts";
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 const createFilmDetails = ({title, originalTitle, poster, actors, director,
   writers, releaseDate, country, rate, time, genres, description, ratingSystem, comments}) => {
@@ -131,24 +131,18 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
 </section>`;
 };
 
-export default class FilmDetails {
+export default class FilmDetails extends AbstractComponent {
   constructor(film) {
+    super();
     this._film = film;
-    this._element = null;
   }
 
   getTemplate() {
     return createFilmDetails(this._film);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setClickHandler(handler) {
+    this.getElement().querySelector(`.film-details__close-btn`)
+      .addEventListener(`click`, handler);
   }
 }

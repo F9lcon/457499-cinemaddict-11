@@ -1,4 +1,5 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
+import {ELEMENTS_TO_LISTEN} from "../consts";
 
 const createCardFilm = ({title, poster, rate, year, time, genres, description,
   comments, maxDescriptionLength}) => {
@@ -31,26 +32,20 @@ const createCardFilm = ({title, poster, rate, year, time, genres, description,
    </article>`;
 };
 
-export default class Film {
+export default class Film extends AbstractComponent {
   constructor(film) {
+    super();
     this._film = film;
-    this._element = null;
   }
 
   getTemplate() {
     return createCardFilm(this._film);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setClickHandler(handler) {
+    ELEMENTS_TO_LISTEN.forEach((cssClassName) => {
+      this.getElement().querySelector(cssClassName).addEventListener(`click`, handler);
+    });
   }
 }
 
