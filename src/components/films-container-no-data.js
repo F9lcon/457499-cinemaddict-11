@@ -1,4 +1,4 @@
-import {createElement} from "../utils";
+import AbstractComponent from "./abstract-component";
 
 const createFilmsContainerNoData = () => {
   return `<section class="films">
@@ -8,23 +8,8 @@ const createFilmsContainerNoData = () => {
   </section>`;
 };
 
-export default class FilmsContainerNoData {
-  constructor() {
-    this._element = null;
-  }
-
+export default class FilmsContainerNoData extends AbstractComponent {
   getTemplate() {
     return createFilmsContainerNoData();
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
