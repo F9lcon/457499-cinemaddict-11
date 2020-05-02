@@ -9,7 +9,7 @@ export const createElement = (template) => {
   return newElement.firstChild;
 };
 
-export const render = (container, element, place) => {
+export const renderElement = (container, element, place) => {
   switch (place) {
     case RenderPosition.AFTERBEGIN:
       container.prepend(element.getElement());
@@ -20,26 +20,6 @@ export const render = (container, element, place) => {
   }
 };
 
-export const renderPopup = (popupComponent) => {
-  const closePopup = () => {
-    document.querySelector(`body`).removeChild(popupComponent.getElement());
-    document.removeEventListener(`keydown`, onEscKeyDown);
-  };
-
-  const onEscKeyDown = (evt) => {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
-      closePopup();
-    }
-  };
-
-  render(document.querySelector(`body`), popupComponent, RenderPosition.BEFOREEND);
-
-  popupComponent.setClickHandler(() => {
-    closePopup();
-  });
-
-  document.addEventListener(`keydown`, onEscKeyDown);
-};
 
 export const remove = (component) => {
   component.getElement().remove();
