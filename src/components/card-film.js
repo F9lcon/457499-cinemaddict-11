@@ -47,5 +47,20 @@ export default class Film extends AbstractComponent {
       this.getElement().querySelector(cssClassName).addEventListener(`click`, handler);
     });
   }
+
+  setAddToWatchListHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--add-to-watchlist`)
+      .addEventListener(`click`, handler);
+  }
+
+  setMarkAsWatchedHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--mark-as-watched`)
+      .addEventListener(`click`, handler);
+  }
+
+  setAddToFavoriteHandler(handler) {
+    this.getElement().querySelector(`.film-card__controls-item--favorite`)
+      .addEventListener(`click`, handler);
+  }
 }
 

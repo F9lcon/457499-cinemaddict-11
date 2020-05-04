@@ -67,7 +67,6 @@ const ratingSystem = [
   `18+`
 ];
 
-
 const createRandomDigit = (max, min = 1) => {
   return min + Math.floor(Math.random() * (max - min));
 };
@@ -150,7 +149,10 @@ export const createFilmMock = () => {
     description: descriptionList.slice(0, createRandomDigit(descriptionList.length)).join(` `),
     maxDescriptionLength: MAX_DESCRIPTION_LENGTH, // подумал, что тут самое оптимальное место для обозначения максимального описания
     ratingSystem: ratingSystem[createRandomDigit(5)],
-    comments: generateComments()
+    comments: generateComments(),
+    isWatchlist: false,
+    isWatched: false,
+    isFavorite: false,
   };
 };
 

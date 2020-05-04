@@ -1,8 +1,8 @@
 import {EMOJI_LIST} from "../consts";
-import AbstractComponent from "./abstract-component";
+import AbstractSmartComponent from "./abstract-smart-component";
 
 const createFilmDetails = ({title, originalTitle, poster, actors, director,
-  writers, releaseDate, country, rate, time, genres, description, ratingSystem, comments}) => {
+  writers, releaseDate, country, rate, time, genres, description, ratingSystem, comments, isWatchlist, isWatched, isFavorite}) => {
 
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -70,13 +70,13 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
       </div>
 
       <section class="film-details__controls">
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${isWatchlist ? `checked` : ``}>
         <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${isWatched ? `checked` : ``}>
         <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${isFavorite ? `checked` : ``}>
         <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
       </section>
     </div>
@@ -131,18 +131,47 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
 </section>`;
 };
 
-export default class FilmDetails extends AbstractComponent {
+export default class FilmDetails extends AbstractSmartComponent {
   constructor(film) {
     super();
     this._film = film;
+    this._closeBtnClickHandler = null;
+    this._subscribeOnEvents();
   }
+
+  recoveryListeners() {
+    console.log(this._closeBtnClickHandler);
+    this._subscribeOnEvents();
+  }
+
 
   getTemplate() {
     return createFilmDetails(this._film);
   }
 
-  setClickHandler(handler) {
+  _subscribeOnEvents() {
     this.getElement().querySelector(`.film-details__close-btn`)
+      .addEventListener(`click`, this._closeBtnClickHandler);
+  }
+
+  setCloseBtnHandler(handler) {
+    this.getElement().querySelector(`.film-details__close-btn`)
+      .addEventListener(`click`, handler);
+    this._closeBtnClickHandler = handler;
+  }
+
+  setAddToWatchListHandler(handler) {
+    this.getElement().querySelector(`#watchlist`)
+      .addEventListener(`click`, handler);
+  }
+
+  setMarkAsWatchedHandler(handler) {
+    this.getElement().querySelector(`#watched`)
+      .addEventListener(`click`, handler);
+  }
+
+  setAddToFavoriteHandler(handler) {
+    this.getElement().querySelector(`#favorite`)
       .addEventListener(`click`, handler);
   }
 }
