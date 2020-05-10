@@ -1,8 +1,16 @@
 import {EMOJI_LIST} from "../consts";
-import AbstractComponent from "./abstract-component";
+import AbstractSmartComponent from "./abstract-smart-component";
 
 const createFilmDetails = ({title, originalTitle, poster, actors, director,
-  writers, releaseDate, country, rate, time, genres, description, ratingSystem, comments}) => {
+  writers, releaseDate, country, rate, time, genres, description, ratingSystem,
+  comments, isWatchlist, isWatched, isFavorite, commentEmoji}) => {
+  const getEmoji = (commentEmojiData) => {
+    if (commentEmojiData) {
+      return `<img src="${commentEmojiData.src}" width="55" height="55" alt="emoji-${commentEmojiData.value}">`;
+    } else {
+      return ``;
+    }
+  };
 
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -70,13 +78,13 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
       </div>
 
       <section class="film-details__controls">
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${isWatchlist ? `checked` : ``}>
         <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${isWatched ? `checked` : ``}>
         <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
 
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite">
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${isFavorite ? `checked` : ``}>
         <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
       </section>
     </div>
@@ -90,7 +98,7 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
     const {text, emoji, author, data} = comment;
     return (`<li class="film-details__comment">
                 <span class="film-details__comment-emoji">
-                <img src="${emoji}" width="55" height="55" alt="emoji-${emoji.slice(15, -4)}">
+                <img src="${emoji.src}" width="55" height="55" alt="emoji-${emoji.value}">
                 </span>
                 <div>
                 <p class="film-details__comment-text">${text}</p>
@@ -107,7 +115,10 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
         </ul>
 
         <div class="film-details__new-comment">
-          <div for="add-emoji" class="film-details__add-emoji-label"></div>
+          <div for="add-emoji" class="film-details__add-emoji-label">
+            ${getEmoji(commentEmoji)}
+
+          </div>
 
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
@@ -116,9 +127,9 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
           <div class="film-details__emoji-list">
             ${EMOJI_LIST.map((emoji) => {
     return (`
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji.slice(15, -4)}" value="${emoji.slice(15, -4)}">
-                <label class="film-details__emoji-label" for="emoji-${emoji.slice(15, -4)}">
-                  <img src="${emoji}" width="30" height="30" alt="emoji-${emoji.slice(15, -4)}">
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji.value}" value="${emoji.value}">
+                <label class="film-details__emoji-label" for="emoji-${emoji.value}">
+                  <img src="${emoji.src}" width="30" height="30" alt="emoji-${emoji.value}">
                 </label>
               `);
   }).join(``)
@@ -131,18 +142,70 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
 </section>`;
 };
 
-export default class FilmDetails extends AbstractComponent {
+export default class FilmDetails extends AbstractSmartComponent {
   constructor(film) {
     super();
     this._film = film;
+    this._closeBtnClickHandler = null;
+    this._addToWatchListHandler = null;
+    this._markAsWatchedHandler = null;
+    this._addToFavoriteHandler = null;
+    this._setEmojiClick = null;
   }
+
+  set film(data) {
+    this._film = data;
+  }
+
+  recoveryListeners() {
+    this._subscribeOnEvents();
+  }
+
 
   getTemplate() {
     return createFilmDetails(this._film);
   }
 
-  setClickHandler(handler) {
+  _subscribeOnEvents() {
+    this.getElement().querySelector(`.film-details__close-btn`)
+      .addEventListener(`click`, this._closeBtnClickHandler);
+    this.getElement().querySelector(`#watchlist`)
+      .addEventListener(`click`, this._addToWatchListHandler);
+    this.getElement().querySelector(`#watched`)
+      .addEventListener(`click`, this._markAsWatchedHandler);
+    this.getElement().querySelector(`#favorite`)
+      .addEventListener(`click`, this._addToFavoriteHandler);
+    this.getElement().querySelector(`.film-details__emoji-list`)
+      .addEventListener(`click`, this._setEmojiClick);
+  }
+
+  setCloseBtnHandler(handler) {
     this.getElement().querySelector(`.film-details__close-btn`)
       .addEventListener(`click`, handler);
+    this._closeBtnClickHandler = handler;
+  }
+
+  setAddToWatchListHandler(handler) {
+    this.getElement().querySelector(`#watchlist`)
+      .addEventListener(`click`, handler);
+    this._addToWatchListHandler = handler;
+  }
+
+  setMarkAsWatchedHandler(handler) {
+    this.getElement().querySelector(`#watched`)
+      .addEventListener(`click`, handler);
+    this._markAsWatchedHandler = handler;
+  }
+
+  setAddToFavoriteHandler(handler) {
+    this.getElement().querySelector(`#favorite`)
+      .addEventListener(`click`, handler);
+    this._addToFavoriteHandler = handler;
+  }
+
+  setEmojiClick(handler) {
+    this.getElement().querySelector(`.film-details__emoji-list`)
+      .addEventListener(`click`, handler);
+    this._setEmojiClick = handler;
   }
 }

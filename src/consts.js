@@ -18,7 +18,12 @@ export const EMOJI_LIST = [
   `puke`,
   `sleeping`,
   `smile`
-].map((emoji) => `./images/emoji/${emoji}.png`);
+].map((emoji) => {
+  return {
+    value: emoji,
+    src: `./images/emoji/${emoji}.png`
+  };
+});
 
 export const ELEMENTS_TO_LISTEN = [
   `.film-card__poster`,
