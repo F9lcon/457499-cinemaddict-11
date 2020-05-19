@@ -21,7 +21,7 @@ export const EMOJI_LIST = [
 ].map((emoji) => {
   return {
     value: emoji,
-    src: `./images/emoji/${emoji}.png`
+    src: `./images/emoji/${emoji}.png`,
   };
 });
 
@@ -30,3 +30,17 @@ export const ELEMENTS_TO_LISTEN = [
   `.film-card__comments`,
   `.film-card__title`
 ];
+
+export const FilterType = {
+  ALL: `all`,
+  WATCHLIST: `watchlist`,
+  HISTORY: `history`,
+  FAVORITES: `favorites`,
+};
+
+export const FilterMarkupNames = {
+  all: `All movies`,
+  watchlist: `Watchlist`,
+  history: `History`,
+  favorites: `Favorites`
+}

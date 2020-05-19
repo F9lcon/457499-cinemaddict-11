@@ -1,6 +1,9 @@
-import {renderElement, RenderPosition} from "../utils/render";
+import {remove, renderElement, RenderPosition} from "../utils/render";
 import FilmCard from "../components/card-film";
 import FilmDetails from "../components/film-details";
+import {getRandomDate} from "../mock/film";
+import {createRandomDigit} from "../mock/film";
+import {encode} from "he";
 
 export default class MovieController {
   constructor(container, onDataChange, onViewChange) {
@@ -14,6 +17,13 @@ export default class MovieController {
 
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._onViewChange = onViewChange;
+    this._pressedKeyCodes = new Set();
+  }
+
+  destroy() {
+    remove(this._filmCardComponent);
+    remove(this._filmDetailsComponent);
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
 
@@ -49,7 +59,7 @@ export default class MovieController {
             this._filmData,
             {commentEmoji: {
               value: evt.target.value,
-              src: `./images/emoji/${evt.target.value}.png`
+              src: `./images/emoji/${evt.target.value}.png`,
             }}));
       }
     });
@@ -84,6 +94,45 @@ export default class MovieController {
       document.addEventListener(`keydown`, this._onEscKeyDown);
     });
 
+    this._filmDetailsComponent.setDeleteCommentClick((evt) => {
+      evt.preventDefault();
+      const commentIdToDel = evt.target.dataset.id;
+      this._onDataChange(this, this._filmData, Object.assign({},
+          this._filmData, {comments: this._getNewComments(this._filmData.comments, commentIdToDel)}));
+    });
+
+    this._filmDetailsComponent.setEnterComment((evt) => {
+      const newCommentForm = this._filmDetailsComponent.getElement()
+        .querySelector(`.film-details__new-comment`);
+      const onCmdEnterKeyUp = () => {
+        this._pressedKeyCodes.clear();
+        newCommentForm.removeEventListener(`keyup`, onCmdEnterKeyUp);
+      };
+
+      if (evt.key === `Meta` || evt.key === `Enter`) {
+        newCommentForm.addEventListener(`keyup`, onCmdEnterKeyUp);
+        this._pressedKeyCodes.add(evt.key);
+        if (this._pressedKeyCodes.has(`Meta`) && this._pressedKeyCodes.has(`Enter`)) {
+          evt.preventDefault();
+          const emojiImg = newCommentForm.querySelector(`.film-details__add-emoji-label img`)
+          this._pressedKeyCodes.clear();
+          const commentText = encode(newCommentForm.querySelector(`.film-details__comment-input`).value)
+          const newComment = {
+            text: commentText,
+            emoji: {
+              value: emojiImg.alt.slice(5),
+              src: emojiImg.src,
+            },
+            author: `Some author`,
+            data: getRandomDate(),
+            id: createRandomDigit(1000000, 1)
+          };
+          this._onDataChange(this, this._filmData, Object.assign({},
+              this._filmData, {comments: this._getNewComments(this._filmData.comments, null, newComment)}));
+        }
+      }
+    });
+
     renderElement(this._containerForCard, this._filmCardComponent,
         RenderPosition.BEFOREEND);
   }
@@ -94,7 +143,17 @@ export default class MovieController {
     }
   }
 
+  _getNewComments(comments, commentIdToDel, newComment = null) {
+    if (commentIdToDel) {
+      return comments.filter((comment) => comment.id !== +commentIdToDel);
+    }
+    comments.push(newComment);
+    return comments;
+  }
+
   _closePopup() {
+    this._filmDetailsComponent.getElement()
+      .querySelector(`.film-details__comment-input`).value = ``;
     document.removeEventListener(`keydown`, this._onEscKeyDown);
     this._filmDetailsComponent.getElement().remove();
   }

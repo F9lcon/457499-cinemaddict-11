@@ -67,7 +67,7 @@ const ratingSystem = [
   `18+`
 ];
 
-const createRandomDigit = (max, min = 1) => {
+export const createRandomDigit = (max, min = 1) => {
   return min + Math.floor(Math.random() * (max - min));
 };
 
@@ -115,7 +115,8 @@ const generateComment = () => {
     text: commentTextList[createRandomDigit(4)],
     emoji: emojiList[createRandomDigit(4, 0)],
     author: commentAuthor[createRandomDigit(4)],
-    data: getRandomDate()
+    data: getRandomDate(),
+    id: createRandomDigit(10000, 1)
   });
 };
 
@@ -151,9 +152,10 @@ export const createFilmMock = () => {
     ratingSystem: ratingSystem[createRandomDigit(5)],
     comments: generateComments(),
     commentEmoji: null,
-    isWatchlist: false,
-    isWatched: false,
-    isFavorite: false,
+    isWatchlist: Boolean(Math.round(Math.random())),
+    isWatched: Boolean(Math.round(Math.random())),
+    isFavorite: Boolean(Math.round(Math.random())),
+    id: createRandomDigit(10000, 1),
   };
 };
 
