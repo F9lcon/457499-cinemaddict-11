@@ -6,7 +6,7 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
   comments, isWatchlist, isWatched, isFavorite, commentEmoji}) => {
   const getEmoji = (commentEmojiData) => {
     if (commentEmojiData) {
-      return `<img src="${commentEmojiData.src}" width="55" height="55" alt="emoji-${commentEmojiData.value}">`;
+      return `<img src="${commentEmojiData.src}" data-id="${commentEmojiData.id}" width="55" height="55" alt="emoji-${commentEmojiData.value}">`;
     } else {
       return ``;
     }
@@ -95,7 +95,7 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
 
         <ul class="film-details__comments-list">
           ${comments.map((comment) => {
-    const {text, emoji, author, data} = comment;
+    const {text, emoji, author, data, id} = comment;
     return (`<li class="film-details__comment">
                 <span class="film-details__comment-emoji">
                 <img src="${emoji.src}" width="55" height="55" alt="emoji-${emoji.value}">
@@ -106,7 +106,7 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
                 <span class="film-details__comment-author">${author}</span>
               <span class="film-details__comment-day">
                 ${data.getFullYear()}/${data.getMonth()}/${data.getDay()} ${data.getHours()}:${data.getMinutes()}</span>
-              <button class="film-details__comment-delete">Delete</button>
+              <button class="film-details__comment-delete" data-id="${id}">Delete</button>
                 </p>
                 </div>
                 </li>`);
@@ -129,7 +129,7 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
     return (`
                 <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emoji.value}" value="${emoji.value}">
                 <label class="film-details__emoji-label" for="emoji-${emoji.value}">
-                  <img src="${emoji.src}" width="30" height="30" alt="emoji-${emoji.value}">
+                  <img src="${emoji.src}" data-id="123" width="30" height="30" alt="emoji-${emoji.value}">
                 </label>
               `);
   }).join(``)
@@ -151,6 +151,8 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._markAsWatchedHandler = null;
     this._addToFavoriteHandler = null;
     this._setEmojiClick = null;
+    this._onCommentChangeHandler = null;
+    this._onCommentEnter = null;
   }
 
   set film(data) {
@@ -177,6 +179,13 @@ export default class FilmDetails extends AbstractSmartComponent {
       .addEventListener(`click`, this._addToFavoriteHandler);
     this.getElement().querySelector(`.film-details__emoji-list`)
       .addEventListener(`click`, this._setEmojiClick);
+
+    const elements = this.getElement().querySelectorAll(`.film-details__comment-delete`);
+    if (elements.length) {
+      elements.forEach((element) => element.addEventListener(`click`, this._onCommentChangeHandler));
+    }
+    this.getElement().querySelector(`.film-details__new-comment`)
+      .addEventListener(`keydown`, this._onCommentEnter);
   }
 
   setCloseBtnHandler(handler) {
@@ -207,5 +216,20 @@ export default class FilmDetails extends AbstractSmartComponent {
     this.getElement().querySelector(`.film-details__emoji-list`)
       .addEventListener(`click`, handler);
     this._setEmojiClick = handler;
+  }
+
+  setDeleteCommentClick(handler) {
+    const elements = this.getElement().querySelectorAll(`.film-details__comment-delete`);
+    if (!elements.length) {
+      return;
+    }
+    elements.forEach((element) => element.addEventListener(`click`, handler));
+    this._onCommentChangeHandler = handler;
+  }
+
+  setEnterComment(handler) {
+    this.getElement().querySelector(`.film-details__new-comment`)
+      .addEventListener(`keydown`, handler);
+    this._onCommentEnter = handler;
   }
 }
