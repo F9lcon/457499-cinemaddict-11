@@ -6,7 +6,6 @@ import Sort from "../components/sort";
 import {SortType} from "../components/sort";
 import MovieController from "./MovieController";
 import LoadingComponent from "../components/loading-data";
-import Movie from "../mock/film";
 
 const SHOWING_FILMS_COUNT_ON_START = 5;
 const SHOWING_FILMS_COUNT_BY_BUTTON = 5;

@@ -114,9 +114,9 @@ export default class MovieController {
         this._pressedKeyCodes.add(evt.key);
         if (this._pressedKeyCodes.has(`Meta`) && this._pressedKeyCodes.has(`Enter`)) {
           evt.preventDefault();
-          const emojiImg = newCommentForm.querySelector(`.film-details__add-emoji-label img`)
+          const emojiImg = newCommentForm.querySelector(`.film-details__add-emoji-label img`);
           this._pressedKeyCodes.clear();
-          const commentText = encode(newCommentForm.querySelector(`.film-details__comment-input`).value)
+          const commentText = encode(newCommentForm.querySelector(`.film-details__comment-input`).value);
           const newComment = {
             text: commentText,
             emoji: {
