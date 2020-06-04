@@ -1,12 +1,13 @@
 import AbstractComponent from "./abstract-component";
-import {ELEMENTS_TO_LISTEN} from "../consts";
+import {ELEMENTS_TO_LISTEN, MAX_DESCRIPTION_LENGTH} from "../consts";
+
 
 const createCardFilm = ({title, poster, rate, year, time, genres, description,
   comments, maxDescriptionLength}) => {
 
   const getShortDescription = () => {
     let result = ``;
-    let shortDescription = description.slice(0, maxDescriptionLength);
+    let shortDescription = description.slice(0, MAX_DESCRIPTION_LENGTH);
     if (shortDescription[shortDescription.length - 1]) {
       result = shortDescription.split(` `).slice(0, -1).join(` `);
     }

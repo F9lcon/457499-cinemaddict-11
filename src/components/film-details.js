@@ -105,9 +105,9 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${author}</span>
               <span class="film-details__comment-day">
-                ${data.getFullYear()}/${data.getMonth()}/${data.getDay()} ${data.getHours()}:${data.getMinutes()}</span>
+                ${new Date(data).getFullYear()}/${new Date(data).getMonth()}/${new Date(data).getDay()} ${new Date(data).getHours()}:${new Date(data).getMinutes()}</span>
               <button class="film-details__comment-delete" data-id="${id}">Delete</button>
-                </p>
+                < /p>
                 </div>
                 </li>`);
   }).join(``)
@@ -151,7 +151,7 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._markAsWatchedHandler = null;
     this._addToFavoriteHandler = null;
     this._setEmojiClick = null;
-    this._onCommentChangeHandler = null;
+    this._onCommentDeleteHandler = null;
     this._onCommentEnter = null;
   }
 
@@ -182,7 +182,7 @@ export default class FilmDetails extends AbstractSmartComponent {
 
     const elements = this.getElement().querySelectorAll(`.film-details__comment-delete`);
     if (elements.length) {
-      elements.forEach((element) => element.addEventListener(`click`, this._onCommentChangeHandler));
+      elements.forEach((element) => element.addEventListener(`click`, this._onCommentDeleteHandler));
     }
     this.getElement().querySelector(`.film-details__new-comment`)
       .addEventListener(`keydown`, this._onCommentEnter);
@@ -220,11 +220,10 @@ export default class FilmDetails extends AbstractSmartComponent {
 
   setDeleteCommentClick(handler) {
     const elements = this.getElement().querySelectorAll(`.film-details__comment-delete`);
-    if (!elements.length) {
-      return;
+    if (elements.length) {
+      elements.forEach((element) => element.addEventListener(`click`, handler));
     }
-    elements.forEach((element) => element.addEventListener(`click`, handler));
-    this._onCommentChangeHandler = handler;
+    this._onCommentDeleteHandler = handler;
   }
 
   setEnterComment(handler) {

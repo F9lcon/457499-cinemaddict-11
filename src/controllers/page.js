@@ -5,6 +5,8 @@ import FilmsContainerNoData from "../components/films-container-no-data";
 import Sort from "../components/sort";
 import {SortType} from "../components/sort";
 import MovieController from "./MovieController";
+import LoadingComponent from "../components/loading-data";
+import Movie from "../mock/film";
 
 const SHOWING_FILMS_COUNT_ON_START = 5;
 const SHOWING_FILMS_COUNT_BY_BUTTON = 5;
@@ -20,16 +22,18 @@ const createMovieControllers = (data, container, onDataChange, onViewChange, onC
 };
 
 export default class PageController {
-  constructor(moviesModel) {
+  constructor(moviesModel, api) {
     this._sortComponent = new Sort();
     this._showMoreBtnComponent = new ButtonShowMore();
     this._filmsContainer = new FilmsContainer();
     this._filmsContainerNoData = new FilmsContainerNoData();
     this._showingFilmsCounter = SHOWING_FILMS_COUNT_ON_START;
     this._showedMovieControllers = [];
+    this._api = api;
 
     this._filmsBoard = null;
     this._filmsListContainer = null;
+    this._loadingComponent = new LoadingComponent();
     this._moviesModel = moviesModel;
 
     this._onDataChange = this._onDataChange.bind(this);
@@ -110,13 +114,24 @@ export default class PageController {
   }
 
   _onDataChange(movieController, oldData, newData) {
-    this._moviesModel.updateMovieData(movieController, oldData.id, newData);
+    this._api.updateMovie(oldData.id, newData)
+      .then((updatedMovie) => {
+        this._moviesModel.updateMovieData(movieController, oldData.id, updatedMovie);
+      });
   }
 
-  render() {
+
+  render(isLoading) {
     const films = this._moviesModel.getMovies();
 
     renderElement(mainElement, this._sortComponent, RenderPosition.BEFOREEND);
+
+    if (isLoading) {
+      renderElement(mainElement, this._loadingComponent, RenderPosition.BEFOREEND);
+      return;
+    } else {
+      this._loadingComponent.getElement().remove();
+    }
 
     if (!films.length) {
       renderElement(mainElement, this._filmsContainerNoData, RenderPosition.BEFOREEND);

@@ -5,9 +5,9 @@ const createStatFooter = (count) => {
 };
 
 export default class StatFooter extends AbstractComponent {
-  constructor(count) {
+  constructor(moviesModel) {
     super();
-    this._count = count;
+    this._count = moviesModel.getMovies().length;
   }
 
   getTemplate() {

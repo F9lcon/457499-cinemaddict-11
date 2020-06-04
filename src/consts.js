@@ -44,3 +44,5 @@ export const FilterMarkupNames = {
   history: `History`,
   favorites: `Favorites`
 }
+
+export const MAX_DESCRIPTION_LENGTH = 140;

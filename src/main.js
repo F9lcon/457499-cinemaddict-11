@@ -1,32 +1,51 @@
-import Profile from "./components/profile";
-import StatFooter from "./components/stat-footer";
-import {generateMock} from "./mock/film";
-import {RenderPosition, renderElement} from "./utils/render";
-import PageController from "./controllers/page";
-import Movies from "./models/movies";
+import API from "./api";
 import FilterController from "./controllers/filter";
+import Movie from "./mock/film";
+import Movies from "./models/movies";
+import PageController from "./controllers/page";
+import Profile from "./components/profile";
+import {RenderPosition, renderElement} from "./utils/render";
+import StatFooter from "./components/stat-footer";
+
+const AUTHORIZATION = `Basic eo0w590ik29889a`;
+let isLoading = true;
 
 
-const FILM_COUNT = 22;
-const mainElement = document.querySelector(`main`);
-
-renderElement(document.querySelector(`.header`), new Profile(),
-    RenderPosition.BEFOREEND);
-const filmsData = generateMock(FILM_COUNT);
+const api = new API(AUTHORIZATION);
 
 const moviesModel = new Movies();
 
-moviesModel.setMovies(filmsData);
 
-const filterController = new FilterController(mainElement, moviesModel);
+renderElement(document.querySelector(`.header`), new Profile(),
+    RenderPosition.BEFOREEND);
+
+const pageController = new PageController(moviesModel, api);
+
+const filterController = new FilterController(document
+  .querySelector(`main`), moviesModel);
 filterController.render();
+pageController.render(isLoading);
 
-renderElement(document.querySelector(`.footer__statistics`),
-    new StatFooter(FILM_COUNT), RenderPosition.BEFOREEND);
-
-const pageController = new PageController(moviesModel);
-
-// pageController.setMoviesModel(moviesModel);
-pageController.render();
-
-
+let moviesArr = [];
+let moviesId = [];
+api.getMovies()
+  .then((movies) => {
+    console.log(movies[0])
+    moviesArr = movies;
+    moviesId = movies.map((it) => it.id);
+    Promise.all(moviesId.map((id) => api.getComments(id)))
+      .then((allComments) => {
+        isLoading = true;
+        moviesModel.setMovies(Movie.parseMovies(moviesArr, allComments));
+        filterController.render();
+        pageController.render();
+        renderElement(document.querySelector(`.footer__statistics`),
+            new StatFooter(moviesModel), RenderPosition.BEFOREEND);
+      })
+      .catch(() => {
+        moviesModel.setMovies([]);
+        pageController.render();
+        renderElement(document.querySelector(`.footer__statistics`),
+            new StatFooter(moviesModel), RenderPosition.BEFOREEND);
+      });
+  });

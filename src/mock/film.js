@@ -1,166 +1,88 @@
-import {MONTH_NAMES} from "../consts";
-import {EMOJI_LIST} from "../consts";
+export default class Movie {
+  constructor(moviesData, commentsData, oneMovieComments) {
+    this.title = moviesData[`film_info`].title;
+    this.originalTitle = moviesData[`film_info`][`alternative_title`];
+    this.poster = moviesData[`film_info`].poster;
+    this.writers = moviesData[`film_info`].writers;
+    this.director = moviesData[`film_info`].director;
+    this.actors = moviesData[`film_info`].actors.join(`, `);
+    this.releaseDate = moviesData[`film_info`].release.date; // string
+    this.rate = moviesData[`film_info`][`total_rating`]; // string
+    this.year = moviesData[`film_info`].release.date.slice(0, 4);
+    this.runTime = moviesData[`film_info`].runtime;
+    this.time = `${Math.floor(moviesData[`film_info`].runtime / 60)}h ${moviesData[`film_info`].runtime % 60}min`;
+    this.country = moviesData[`film_info`].release[`release_country`];
+    this.genres = moviesData[`film_info`].genre;
+    this.description = moviesData[`film_info`].description;
+    this.ratingSystem = moviesData[`film_info`][`age_rating`];
+    this.comments = commentsData ? Movie.getComments(moviesData.id, commentsData) : oneMovieComments.map(Movie.parseComment);
+    this.commentEmoji = null;
+    this.isWatchlist = moviesData[`user_details`].watchlist;
+    this.isWatched = moviesData[`user_details`][`already_watched`];
+    this.isFavorite = moviesData[`user_details`].favorite;
+    this.watchingData = moviesData[`user_details`][`watching_date`];
+    this.id = moviesData.id;
+  }
 
-const MAX_DESCRIPTION_LENGTH = 140;
+  static parseMovie(data, commentsData, oneMovieComments) {
+    return new Movie(data, commentsData, oneMovieComments);
+  }
 
+  static parseMovies(data, allComments) {
+    return data.map((it) => {
+      return Movie.parseMovie(it, allComments);
+    });
+  }
 
-const posters = [
-  `made-for-each-other.png`,
-  `popeye-meets-sinbad.png`,
-  `sagebrush-trail.jpg`,
-  `santa-claus-conquers-the-martians.jpg`,
-  `the-dance-of-life.jpg`,
-  `the-great-flamarion.jpg`,
-  `the-man-with-the-golden-arm.jpg`
-].map((poster) => `../images/posters/${poster}`);
+  static parseComment(data) {
+    const comment = {
+      text: data.comment,
+      emoji: {
+        value: data.emotion,
+        src: `./images/emoji/${data.emotion}.png`,
+      },
+      author: data.author,
+      data: data.date,
+      id: data.id
+    };
+    return comment;
+  }
 
-const filmNames = [
-  `Made for each other`,
-  `Popeye meets sinbad`,
-  `Sagebrush trail`,
-  `Santa claus conquers the martians`,
-  `The dance of life`,
-  `The great Flamarion`,
-  `The man with the golden arm`
-];
+  static parseComments(data) {
+    return data.map(Movie.parseComment);
+  }
 
-const genreList = [
-  `Horror`,
-  `Musical`,
-  `Comedy`
-];
+  static getComments(movieId, commentsData) {
+    return Movie.parseComments(commentsData[movieId]);
+  }
 
-const directorsList = [
-  `Steven Spielberg`,
-  `Martin Scorsese`,
-  `Alfred Hitchcock`,
-  `Stanley Kubrick`,
-  `Quentin Tarantino`
-];
-
-const writersList = [
-  `Anne Wigton`,
-  `Heinz Herald`,
-  `Richard Weil`
-];
-
-const actorsList = [
-  `Marlon Brando`,
-  `Marcello Mastroianni`,
-  `Laurence Olivier`,
-  `John Gielgud`,
-  `Anatoliy Solonitsyn`
-];
-
-const countryList = [
-  `USA`,
-  `Italy`,
-  `Russia`,
-  `China`
-];
-
-const ratingSystem = [
-  `0+`,
-  `6+`,
-  `12+`,
-  `16+`,
-  `18+`
-];
-
-export const createRandomDigit = (max, min = 1) => {
-  return min + Math.floor(Math.random() * (max - min));
-};
-
-const descriptionList = [
-  `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.`,
-  `Fusce tristique felis at fermentum pharetra.`,
-  `Aliquam id orci ut lectus varius viverra.`,
-  `Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.`,
-  `Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.`,
-  `Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis.`,
-  `Aliquam erat volutpat.`,
-  `Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus`
-];
-
-const commentTextList = [
-  `Interesting setting and a good cast`,
-  `Booooooooooring`,
-  `Very very old. Meh`,
-  `Almost two hours? Seriously?`
-];
-
-const commentAuthor = [
-  `Tim Macoveev`,
-  `John Doe`,
-  `John D`,
-  `Tim Maceev`
-];
-
-export const getRandomDate = () => {
-  const targetDate = new Date();
-  const sign = Math.random() > 0.5 ? 1 : -1;
-  const diffValue = sign * createRandomDigit(8, 0);
-
-  targetDate.setDate(targetDate.getDate() - diffValue);
-
-  return targetDate;
-};
-
-
-const emojiList = EMOJI_LIST;
-
-
-const generateComment = () => {
-  return ({
-    text: commentTextList[createRandomDigit(4)],
-    emoji: emojiList[createRandomDigit(4, 0)],
-    author: commentAuthor[createRandomDigit(4)],
-    data: getRandomDate(),
-    id: createRandomDigit(10000, 1)
-  });
-};
-
-const generateComments = () => {
-  return new Array(createRandomDigit(5, 0))
-    .fill(``)
-    .map(generateComment);
-};
-
-const generateYear = () => {
-  return createRandomDigit(2020, 1950);
-};
-
-
-export const createFilmMock = () => {
-  const year = generateYear();
-  const digit = createRandomDigit(filmNames.length);
-  return {
-    title: filmNames[digit],
-    originalTitle: filmNames[digit],
-    poster: posters[digit],
-    writers: writersList[createRandomDigit(3)],
-    director: directorsList[createRandomDigit(5)],
-    actors: actorsList.slice(0, createRandomDigit(5)).join(`, `),
-    releaseDate: `${createRandomDigit(30)} ${MONTH_NAMES[createRandomDigit(12)]} ${year}`,
-    rate: `${createRandomDigit(10)}.${createRandomDigit(10)}`,
-    year,
-    time: `${createRandomDigit(3)}h ${createRandomDigit(59)}min`,
-    country: countryList[createRandomDigit(4)],
-    genres: genreList,
-    description: descriptionList.slice(0, createRandomDigit(descriptionList.length)).join(` `),
-    maxDescriptionLength: MAX_DESCRIPTION_LENGTH, // подумал, что тут самое оптимальное место для обозначения максимального описания
-    ratingSystem: ratingSystem[createRandomDigit(5)],
-    comments: generateComments(),
-    commentEmoji: null,
-    isWatchlist: Boolean(Math.round(Math.random())),
-    isWatched: Boolean(Math.round(Math.random())),
-    isFavorite: Boolean(Math.round(Math.random())),
-    id: createRandomDigit(10000, 1),
-  };
-};
-
-export const generateMock = (count) => {
-  return new Array(count)
-    .fill(``)
-    .map(createFilmMock);
+  static parseMovieToServer(data) {
+    return {
+      "id": data.id,
+      "comments": data.comments.map((it) => it.id),
+      "film_info": {
+        "title": data.title,
+        "alternative_title": data.originalTitle,
+        "total_rating": data.rate,
+        "poster": data.poster,
+        "age_rating": data.ratingSystem,
+        "director": data.director,
+        "writers": data.writers,
+        "actors": data.actors.split(`, `),
+        "release": {
+          "date": data.releaseDate,
+          "release_country": data.country
+        },
+        "runtime": data.runTime,
+        "genre": data.genres,
+        "description": data.description
+      },
+      "user_details": {
+        "watchlist": data.isWatchlist,
+        "already_watched": data.isWatched,
+        "favorite": data.isFavorite,
+        "watching_date": `2019-04-12T16:12:32.554Z`,
+      }
+    };
+  }
 };

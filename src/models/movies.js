@@ -3,7 +3,7 @@ import {getFilmsByFilter} from "../utils/filter";
 
 export default class Movies {
   constructor() {
-    this._movies = null;
+    this._movies = [];
     this._dataChangeHandlers = [];
     this._filterChangeHandlers = [];
     this._activeFilterType = FilterType.ALL;
@@ -26,8 +26,6 @@ export default class Movies {
     this._activeFilterType = filterType;
     this._callHandlers(this._filterChangeHandlers);
   }
-
-
 
   updateMovieData(movieController, filmId, newData) {
     const index = this._movies.findIndex((it) => it.id === filmId);
