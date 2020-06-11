@@ -85,4 +85,18 @@ export default class Movie {
       }
     };
   }
+
+  static parseCommentsToServer(data) {
+    return data.map(Movie.parseCommentToServer);
+  }
+
+  static parseCommentToServer(data) {
+    return {
+      "id": `${data.id}`,
+      "author": `Movie Buff`,
+      "comment": data.text,
+      "date": data.data,
+      "emotion": data.emoji.value
+    };
+  }
 }

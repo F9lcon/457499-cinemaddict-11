@@ -6,6 +6,7 @@ import Sort from "../components/sort";
 import {SortType} from "../components/sort";
 import MovieController from "./MovieController";
 import LoadingComponent from "../components/loading-data";
+import {Actions} from "../consts";
 
 const SHOWING_FILMS_COUNT_ON_START = 5;
 const SHOWING_FILMS_COUNT_BY_BUTTON = 5;
@@ -112,11 +113,32 @@ export default class PageController {
       .querySelector(`.films-list__container`);
   }
 
-  _onDataChange(movieController, oldData, newData) {
-    this._api.updateMovie(oldData.id, newData)
-      .then((updatedMovie) => {
-        this._moviesModel.updateMovieData(movieController, oldData.id, updatedMovie);
-      });
+  _onDataChange(movieController, oldData, newData, action, commentIdToDelete) {
+    switch (action) {
+      case Actions.UPDATE_MOVIE:
+        this._api.updateMovie(oldData.id, newData)
+          .then((updatedMovie) => {
+            this._moviesModel.updateMovieData(movieController, oldData.id, updatedMovie);
+          });
+        break;
+      case Actions.UPDATE_EMOJI:
+        this._moviesModel.updateMovieData(movieController, oldData.id, newData);
+        break;
+      case Actions.CREATE_NEW_COMMENT:
+        this._api.createComment(oldData.id, newData)
+          .then((updatedMovie) => {
+            this._moviesModel.updateMovieData(movieController, oldData.id, updatedMovie);
+          })
+        break;
+      case Actions.DELETE_COMMENT:
+        this._api.deleteComment(oldData.id, commentIdToDelete)
+          .then((updatedComments) => {
+            this._moviesModel.updateMovieData(movieController, oldData.id,
+                Object.assign({}, oldData, {comments: updatedComments}));
+          });
+    }
+
+
   }
 
 

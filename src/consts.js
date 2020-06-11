@@ -46,3 +46,10 @@ export const FilterMarkupNames = {
 }
 
 export const MAX_DESCRIPTION_LENGTH = 140;
+
+export const Actions = {
+  UPDATE_MOVIE: `updateMovie`,
+  CREATE_NEW_COMMENT: `createNewComment`,
+  DELETE_COMMENT: `deleteComment`,
+  UPDATE_EMOJI: `updateEmoji`
+}

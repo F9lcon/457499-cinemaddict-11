@@ -7,7 +7,7 @@ import Profile from "./components/profile";
 import {RenderPosition, renderElement} from "./utils/render";
 import StatFooter from "./components/stat-footer";
 
-const AUTHORIZATION = `Basic eo0w590ik29889a`;
+const AUTHORIZATION = `Basic eo0v590ik29889a`;
 let isLoading = true;
 
 
@@ -30,7 +30,6 @@ let moviesArr = [];
 let moviesId = [];
 api.getMovies()
   .then((movies) => {
-    console.log(movies[0])
     moviesArr = movies;
     moviesId = movies.map((it) => it.id);
     Promise.all(moviesId.map((id) => api.getComments(id)))

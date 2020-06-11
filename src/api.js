@@ -51,7 +51,37 @@ const API = class {
           });
       });
   }
+
+  createComment(movieId, data) {
+    const headers = new Headers();
+    headers.append(`Authorization`, this._authorization);
+    headers.append(`Content-Type`, `application/json`);
+    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/comments/${movieId}`,
+        {
+          method: `POST`,
+          body: JSON.stringify(Movie.parseCommentToServer(data)),
+          headers
+        })
+      .then(checkStatus)
+      .then((response) => response.json())
+      .then((movieData) => Movie.parseMovie(movieData.movie, null, movieData.comments));
+  }
+
+  deleteComment(movieId, commentId) {
+    const headers = new Headers();
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/comments/${commentId}`,
+        {
+          method: `DELETE`,
+          headers})
+      .then(() => this.getComments(movieId))
+      .then((updatedComments) => Movie.parseComments(updatedComments))
+  }
+
 };
 
 export default API;
+
+// рефактор методов
 

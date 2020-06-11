@@ -1,9 +1,11 @@
+import {Actions} from "../consts";
+import {createRandomDigit} from "../utils/ulits";
 import {remove, renderElement, RenderPosition} from "../utils/render";
 import FilmCard from "../components/card-film";
 import FilmDetails from "../components/film-details";
-import {getRandomDate} from "../mock/film";
-import {createRandomDigit} from "../mock/film";
 import {encode} from "he";
+
+
 
 export default class MovieController {
   constructor(container, onDataChange, onViewChange) {
@@ -40,17 +42,17 @@ export default class MovieController {
 
     this._filmDetailsComponent.setAddToWatchListHandler(() => {
       this._onDataChange(this, this._filmData, Object.assign({},
-          this._filmData, {isWatchlist: !this._filmData.isWatchlist}));
+          this._filmData, {isWatchlist: !this._filmData.isWatchlist}), Actions.UPDATE_MOVIE);
     });
 
     this._filmDetailsComponent.setMarkAsWatchedHandler(() => {
       this._onDataChange(this, this._filmData, Object.assign({},
-          this._filmData, {isWatched: !this._filmData.isWatched}));
+          this._filmData, {isWatched: !this._filmData.isWatched}), Actions.UPDATE_MOVIE);
     });
 
     this._filmDetailsComponent.setAddToFavoriteHandler(() => {
       this._onDataChange(this, this._filmData, Object.assign({},
-          this._filmData, {isFavorite: !this._filmData.isFavorite}));
+          this._filmData, {isFavorite: !this._filmData.isFavorite}), Actions.UPDATE_MOVIE);
     });
 
     this._filmDetailsComponent.setEmojiClick((evt) => {
@@ -60,7 +62,7 @@ export default class MovieController {
             {commentEmoji: {
               value: evt.target.value,
               src: `./images/emoji/${evt.target.value}.png`,
-            }}));
+            }}), Actions.UPDATE_EMOJI);
       }
     });
 
@@ -97,8 +99,9 @@ export default class MovieController {
     this._filmDetailsComponent.setDeleteCommentClick((evt) => {
       evt.preventDefault();
       const commentIdToDel = evt.target.dataset.id;
-      this._onDataChange(this, this._filmData, Object.assign({},
-          this._filmData, {comments: this._getNewComments(this._filmData.comments, commentIdToDel)}));
+      this._onDataChange(this, this._filmData, null, Actions.DELETE_COMMENT, commentIdToDel)
+      // this._onDataChange(this, this._filmData, Object.assign({},
+      //     this._filmData, {comments: this._getNewComments(this._filmData.comments, commentIdToDel)}));
     });
 
     this._filmDetailsComponent.setEnterComment((evt) => {
@@ -120,15 +123,14 @@ export default class MovieController {
           const newComment = {
             text: commentText,
             emoji: {
-              value: emojiImg.alt.slice(5),
+              value: emojiImg.alt.slice(6),
               src: emojiImg.src,
             },
             author: `Some author`,
-            data: getRandomDate(),
+            data: new Date(),
             id: createRandomDigit(1000000, 1)
           };
-          this._onDataChange(this, this._filmData, Object.assign({},
-              this._filmData, {comments: this._getNewComments(this._filmData.comments, null, newComment)}));
+          this._onDataChange(this, this._filmData, newComment, Actions.CREATE_NEW_COMMENT);
         }
       }
     });
