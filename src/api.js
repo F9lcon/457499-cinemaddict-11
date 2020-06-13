@@ -1,5 +1,12 @@
 import Movie from "./mock/film";
 
+const Method = {
+  GET: `GET`,
+  POST: `POST`,
+  PUT: `PUT`,
+  DELETE: `DELETE`
+};
+
 const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -11,38 +18,25 @@ const checkStatus = (response) => {
 const API = class {
   constructor(authorization) {
     this._authorization = authorization;
+    this._url = `https://11.ecmascript.pages.academy/cinemaddict/`;
   }
-  getMovies() {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
 
-    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/movies`,
-        {headers})
+  getMovies() {
+    return this._load({endPoint: `movies`})
       .then((response) => response.json());
   }
 
   getComments(movieId) {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/comments/${movieId}`,
-        {headers})
+    return this._load({endPoint: `comments/${movieId}`})
       .then((response) => response.json());
   }
 
   updateMovie(movieId, data) {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-    headers.append(`Content-Type`, `application/json`);
-
-
-    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/movies/${movieId}`,
-        {
-          method: `PUT`,
-          body: JSON.stringify(Movie.parseMovieToServer(data)),
-          headers
-        })
-      .then(checkStatus)
+    return this._load({endPoint: `movies/${movieId}`,
+      method: Method.PUT,
+      headers: new Headers({"Content-Type": `application/json`}),
+      body: JSON.stringify(Movie.parseMovieToServer(data))
+    })
       .then((response) => response.json())
       .then((movieData) => {
         return this.getComments(movieId)
@@ -53,35 +47,34 @@ const API = class {
   }
 
   createComment(movieId, data) {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-    headers.append(`Content-Type`, `application/json`);
-    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/comments/${movieId}`,
-        {
-          method: `POST`,
-          body: JSON.stringify(Movie.parseCommentToServer(data)),
-          headers
-        })
-      .then(checkStatus)
+    return this._load({endPoint: `comments/${movieId}`,
+      method: Method.POST,
+      headers: new Headers({"Content-Type": `application/json`}),
+      body: JSON.stringify(Movie.parseCommentToServer(data))
+    })
       .then((response) => response.json())
       .then((movieData) => Movie.parseMovie(movieData.movie, null, movieData.comments));
   }
 
   deleteComment(movieId, commentId) {
-    const headers = new Headers();
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`https://11.ecmascript.pages.academy/cinemaddict/comments/${commentId}`,
-        {
-          method: `DELETE`,
-          headers})
+    return this._load({endPoint: `comments/${commentId}`, method: Method.DELETE})
       .then(() => this.getComments(movieId))
-      .then((updatedComments) => Movie.parseComments(updatedComments))
+      .then((updatedComments) => Movie.parseComments(updatedComments));
   }
 
+  _load({endPoint, method = Method.GET, body = null, headers = new Headers()}) {
+    headers.append(`Authorization`, this._authorization);
+
+
+    return fetch(`${this._url}${endPoint}`, {method, body, headers})
+      .then(checkStatus)
+      .catch((err) => {
+        throw err;
+      });
+  }
 };
 
 export default API;
 
-// рефактор методов
+
 
