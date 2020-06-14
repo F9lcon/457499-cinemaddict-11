@@ -107,7 +107,7 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
               <span class="film-details__comment-day">
                 ${new Date(data).getFullYear()}/${new Date(data).getMonth()}/${new Date(data).getDay()} ${new Date(data).getHours()}:${new Date(data).getMinutes()}</span>
               <button class="film-details__comment-delete" data-id="${id}">Delete</button>
-                < /p>
+                </p>
                 </div>
                 </li>`);
   }).join(``)
@@ -121,7 +121,7 @@ const createFilmDetails = ({title, originalTitle, poster, actors, director,
           </div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+            <textarea  class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea >
           </label>
 
           <div class="film-details__emoji-list">

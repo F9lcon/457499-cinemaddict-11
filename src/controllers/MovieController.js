@@ -5,7 +5,11 @@ import FilmCard from "../components/card-film";
 import FilmDetails from "../components/film-details";
 import {encode} from "he";
 
-
+const SHAKE_ANIMATION_TIMEOUT = 600;
+const NamesDeleteBtn = {
+  DELETE: `Delete`,
+  DELETING: `Deleting`
+}
 
 export default class MovieController {
   constructor(container, onDataChange, onViewChange) {
@@ -55,6 +59,24 @@ export default class MovieController {
           this._filmData, {isFavorite: !this._filmData.isFavorite}), Actions.UPDATE_MOVIE);
     });
 
+    this._filmCardComponent.setAddToWatchListHandler((evt) => {
+      evt.preventDefault();
+      this._onDataChange(this, this._filmData, Object.assign({},
+          this._filmData, {isWatchlist: !this._filmData.isWatchlist}), Actions.UPDATE_MOVIE);
+    });
+
+    this._filmCardComponent.setMarkAsWatchedHandler((evt) => {
+      evt.preventDefault();
+      this._onDataChange(this, this._filmData, Object.assign({},
+          this._filmData, {isWatched: !this._filmData.isWatched}), Actions.UPDATE_MOVIE);
+    });
+
+    this._filmCardComponent.setAddToFavoriteHandler((evt) => {
+      evt.preventDefault();
+      this._onDataChange(this, this._filmData, Object.assign({},
+          this._filmData, {isFavorite: !this._filmData.isFavorite}), Actions.UPDATE_MOVIE);
+    });
+
     this._filmDetailsComponent.setEmojiClick((evt) => {
       if (evt.target.nodeName === `INPUT`) {
         this._onDataChange(this, this._filmData, Object.assign({},
@@ -64,24 +86,6 @@ export default class MovieController {
               src: `./images/emoji/${evt.target.value}.png`,
             }}), Actions.UPDATE_EMOJI);
       }
-    });
-
-    this._filmCardComponent.setAddToWatchListHandler((evt) => {
-      evt.preventDefault();
-      this._onDataChange(this, this._filmData, Object.assign({},
-          this._filmData, {isWatchlist: !this._filmData.isWatchlist}));
-    });
-
-    this._filmCardComponent.setMarkAsWatchedHandler((evt) => {
-      evt.preventDefault();
-      this._onDataChange(this, this._filmData, Object.assign({},
-          this._filmData, {isWatched: !this._filmData.isWatched}));
-    });
-
-    this._filmCardComponent.setAddToFavoriteHandler((evt) => {
-      evt.preventDefault();
-      this._onDataChange(this, this._filmData, Object.assign({},
-          this._filmData, {isFavorite: !this._filmData.isFavorite}));
     });
 
     this._filmCardComponent.setClickHandler(()=> {
@@ -98,10 +102,11 @@ export default class MovieController {
 
     this._filmDetailsComponent.setDeleteCommentClick((evt) => {
       evt.preventDefault();
+      const deleteBtn = evt.target;
       const commentIdToDel = evt.target.dataset.id;
-      this._onDataChange(this, this._filmData, null, Actions.DELETE_COMMENT, commentIdToDel)
-      // this._onDataChange(this, this._filmData, Object.assign({},
-      //     this._filmData, {comments: this._getNewComments(this._filmData.comments, commentIdToDel)}));
+      deleteBtn.innerHTML = NamesDeleteBtn.DELETING;
+      deleteBtn.disabled = true;
+      this._onDataChange(this, this._filmData, null, Actions.DELETE_COMMENT, commentIdToDel);
     });
 
     this._filmDetailsComponent.setEnterComment((evt) => {
@@ -117,9 +122,11 @@ export default class MovieController {
         this._pressedKeyCodes.add(evt.key);
         if (this._pressedKeyCodes.has(`Meta`) && this._pressedKeyCodes.has(`Enter`)) {
           evt.preventDefault();
+          const textArea = newCommentForm.querySelector(`.film-details__comment-input`);
+          textArea.disabled = true;
           const emojiImg = newCommentForm.querySelector(`.film-details__add-emoji-label img`);
           this._pressedKeyCodes.clear();
-          const commentText = encode(newCommentForm.querySelector(`.film-details__comment-input`).value);
+          const commentText = encode(textArea.value);
           const newComment = {
             text: commentText,
             emoji: {
@@ -131,6 +138,7 @@ export default class MovieController {
             id: createRandomDigit(1000000, 1)
           };
           this._onDataChange(this, this._filmData, newComment, Actions.CREATE_NEW_COMMENT);
+          textArea.disabled = false;
         }
       }
     });
@@ -145,14 +153,6 @@ export default class MovieController {
     }
   }
 
-  _getNewComments(comments, commentIdToDel, newComment = null) {
-    if (commentIdToDel) {
-      return comments.filter((comment) => comment.id !== +commentIdToDel);
-    }
-    comments.push(newComment);
-    return comments;
-  }
-
   _closePopup() {
     this._filmDetailsComponent.getElement()
       .querySelector(`.film-details__comment-input`).value = ``;
@@ -162,6 +162,33 @@ export default class MovieController {
 
   setDefaultView() {
     this._closePopup();
+  }
+
+  shake() {
+    this._filmDetailsComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+
+    setTimeout(() => {
+      this._filmDetailsComponent.getElement().style.animation = ``;
+    }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  onErrorInput() {
+    const commentInput = this._filmDetailsComponent.getElement()
+      .querySelector(`.film-details__comment-input`);
+    commentInput.disabled = false;
+    commentInput.style.border = `3px solid red`;
+
+    setTimeout(() => {
+      commentInput.style.border = ``;
+      commentInput.focus();
+    }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  onErrorDeleteBtn(idToDelete) {
+    const deleteBtn = Array.from(document.querySelectorAll(`.film-details__comment-delete`))
+      .find((it) => it.dataset.id === idToDelete);
+    deleteBtn.disabled = false;
+    deleteBtn.innerHTML = NamesDeleteBtn.DELETE;
   }
 }
 
